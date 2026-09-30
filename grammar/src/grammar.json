@@ -25,6 +25,10 @@
           },
           {
             "type": "SYMBOL",
+            "name": "incremental_where_block"
+          },
+          {
+            "type": "SYMBOL",
             "name": "input_block"
           },
           {
@@ -99,6 +103,19 @@
         {
           "type": "STRING",
           "value": "post_operations"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_sql_block_body"
+        }
+      ]
+    },
+    "incremental_where_block": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "incremental_where"
         },
         {
           "type": "SYMBOL",

@@ -1,7 +1,8 @@
 /**
  * Dataform SQLX: SQL with `config {}` / `js {}` / `pre_operations {}` /
- * `post_operations {}` / `input "x" {}` blocks and `${...}` JS interpolation.
- * SQL and JS regions are exposed as nodes for editor injections.
+ * `post_operations {}` / `incremental_where {}` / `input "x" {}` blocks and
+ * `${...}` JS interpolation. SQL and JS regions are exposed as nodes for
+ * editor injections.
  */
 module.exports = grammar({
   name: 'sqlx',
@@ -16,6 +17,7 @@ module.exports = grammar({
       $.js_block,
       $.pre_operations_block,
       $.post_operations_block,
+      $.incremental_where_block,
       $.input_block,
       $.interpolation,
       $.sql_text,
@@ -28,6 +30,8 @@ module.exports = grammar({
     pre_operations_block: $ => seq('pre_operations', $._sql_block_body),
 
     post_operations_block: $ => seq('post_operations', $._sql_block_body),
+
+    incremental_where_block: $ => seq('incremental_where', $._sql_block_body),
 
     input_block: $ => seq('input', $.string, $._sql_block_body),
 

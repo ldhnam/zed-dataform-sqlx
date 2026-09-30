@@ -38,6 +38,25 @@
     }
   },
   {
+    "type": "incremental_where_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "block_sql_text",
+          "named": true
+        },
+        {
+          "type": "interpolation",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "input_block",
     "named": true,
     "fields": {},
@@ -195,6 +214,10 @@
           "named": true
         },
         {
+          "type": "incremental_where_block",
+          "named": true
+        },
+        {
           "type": "input_block",
           "named": true
         },
@@ -257,6 +280,10 @@
   },
   {
     "type": "config",
+    "named": false
+  },
+  {
+    "type": "incremental_where",
     "named": false
   },
   {

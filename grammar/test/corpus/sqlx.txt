@@ -145,3 +145,28 @@ WHERE price > $1 AND s = '{}'
 
 (source_file
   (sql_text))
+
+==================
+Legacy incremental_where block
+==================
+
+config { type: "incremental" }
+SELECT ts, incremental_where_flag FROM t
+incremental_where {
+  ts > (SELECT MAX(ts) FROM ${self()})
+}
+
+---
+
+(source_file
+  (config_block
+    (object
+      (pair
+        key: (property_identifier)
+        value: (js_expression))))
+  (sql_text)
+  (incremental_where_block
+    (block_sql_text)
+    (interpolation
+      (js_body))
+    (block_sql_text)))

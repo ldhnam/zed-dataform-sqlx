@@ -27,7 +27,7 @@ static bool str_eq(const char *a, const char *b) {
 
 static bool is_block_keyword(const char *w) {
   return str_eq(w, "config") || str_eq(w, "js") || str_eq(w, "pre_operations") ||
-         str_eq(w, "post_operations") || str_eq(w, "input");
+         str_eq(w, "post_operations") || str_eq(w, "incremental_where") || str_eq(w, "input");
 }
 
 static void scan_js(TSLexer *lexer, bool stop_at_comma);
@@ -169,11 +169,11 @@ static bool scan_sql(TSLexer *lexer, bool in_block) {
     } else if (!is_hspace(c)) {
       if (line_start && is_ident_start(c)) {
         lexer->mark_end(lexer);
-        char word[16];
+        char word[24];
         int len = 0;
         bool too_long = false;
         while (is_ident(lexer->lookahead)) {
-          if (len < 15) word[len++] = (char)lexer->lookahead;
+          if (len < 23) word[len++] = (char)lexer->lookahead;
           else too_long = true;
           advance(lexer);
         }
