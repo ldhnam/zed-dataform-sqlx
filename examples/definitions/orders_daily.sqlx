@@ -1,0 +1,42 @@
+config {
+  type: "incremental",
+  schema: "analytics",
+  description: "Daily order totals per customer",
+  uniqueKey: ["order_date", "customer_id"],
+  bigquery: {
+    partitionBy: "order_date",
+    clusterBy: ["customer_id"],
+  },
+  // Checks run after every build
+  assertions: {
+    nonNull: ["order_date", "customer_id"],
+  },
+  tags: ["daily", "orders"],
+}
+
+js {
+  const lookbackDays = 3;
+  const currency = (col) => `ROUND(${col}, 2)`;
+}
+
+pre_operations {
+  DECLARE since DATE DEFAULT (
+    ${when(incremental(),
+      `SELECT DATE_SUB(MAX(order_date), INTERVAL ${lookbackDays} DAY) FROM ${self()}`,
+      `SELECT DATE "2020-01-01"`)}
+  );
+}
+
+-- One row per customer per day
+SELECT
+  DATE(o.created_at) AS order_date,
+  o.customer_id,
+  COUNT(*) AS order_count,
+  ${currency("SUM(o.amount)")} AS revenue
+FROM ${ref("orders")} AS o
+WHERE DATE(o.created_at) >= since
+GROUP BY 1, 2
+
+post_operations {
+  GRANT `roles/bigquery.dataViewer` ON TABLE ${self()} TO "group:analysts@example.com";
+}

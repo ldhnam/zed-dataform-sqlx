@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: SQL highlighting problem (not Dataform-specific)
+    url: https://github.com/zed-extensions/sql/issues
+    about: SQL itself is highlighted by Zed's SQL extension. If the same SQL is wrong in a plain .sql file, report it there.

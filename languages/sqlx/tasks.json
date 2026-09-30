@@ -1,0 +1,66 @@
+[
+  {
+    "label": "dataform compile",
+    "command": "sh",
+    "args": [
+      "-c",
+      "d=\"$1\"; while [ \"$d\" != / ] && [ ! -f \"$d/workflow_settings.yaml\" ] && [ ! -f \"$d/dataform.json\" ]; do d=$(dirname \"$d\"); done; if [ \"$d\" = / ]; then echo \"dataform: no workflow_settings.yaml or dataform.json found above $1\" >&2; exit 1; fi; cmd=\"$2\"; shift 2; echo \"\\$ dataform $cmd $d $*\"; exec dataform \"$cmd\" \"$d\" \"$@\"",
+      "sh",
+      "$ZED_DIRNAME",
+      "compile"
+    ],
+    "tags": [
+      "dataform-action"
+    ]
+  },
+  {
+    "label": "dataform run $ZED_STEM --dry-run",
+    "command": "sh",
+    "args": [
+      "-c",
+      "d=\"$1\"; while [ \"$d\" != / ] && [ ! -f \"$d/workflow_settings.yaml\" ] && [ ! -f \"$d/dataform.json\" ]; do d=$(dirname \"$d\"); done; if [ \"$d\" = / ]; then echo \"dataform: no workflow_settings.yaml or dataform.json found above $1\" >&2; exit 1; fi; cmd=\"$2\"; shift 2; echo \"\\$ dataform $cmd $d $*\"; exec dataform \"$cmd\" \"$d\" \"$@\"",
+      "sh",
+      "$ZED_DIRNAME",
+      "run",
+      "--actions",
+      "$ZED_STEM",
+      "--dry-run"
+    ],
+    "tags": [
+      "dataform-action"
+    ]
+  },
+  {
+    "label": "dataform run $ZED_STEM",
+    "command": "sh",
+    "args": [
+      "-c",
+      "d=\"$1\"; while [ \"$d\" != / ] && [ ! -f \"$d/workflow_settings.yaml\" ] && [ ! -f \"$d/dataform.json\" ]; do d=$(dirname \"$d\"); done; if [ \"$d\" = / ]; then echo \"dataform: no workflow_settings.yaml or dataform.json found above $1\" >&2; exit 1; fi; cmd=\"$2\"; shift 2; echo \"\\$ dataform $cmd $d $*\"; exec dataform \"$cmd\" \"$d\" \"$@\"",
+      "sh",
+      "$ZED_DIRNAME",
+      "run",
+      "--actions",
+      "$ZED_STEM"
+    ],
+    "tags": [
+      "dataform-action"
+    ]
+  },
+  {
+    "label": "dataform run $ZED_STEM --include-deps",
+    "command": "sh",
+    "args": [
+      "-c",
+      "d=\"$1\"; while [ \"$d\" != / ] && [ ! -f \"$d/workflow_settings.yaml\" ] && [ ! -f \"$d/dataform.json\" ]; do d=$(dirname \"$d\"); done; if [ \"$d\" = / ]; then echo \"dataform: no workflow_settings.yaml or dataform.json found above $1\" >&2; exit 1; fi; cmd=\"$2\"; shift 2; echo \"\\$ dataform $cmd $d $*\"; exec dataform \"$cmd\" \"$d\" \"$@\"",
+      "sh",
+      "$ZED_DIRNAME",
+      "run",
+      "--actions",
+      "$ZED_STEM",
+      "--include-deps"
+    ],
+    "tags": [
+      "dataform-action"
+    ]
+  }
+]

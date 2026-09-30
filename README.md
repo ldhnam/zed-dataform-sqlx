@@ -1,51 +1,64 @@
 # Dataform SQLX for Zed
 
-Syntax highlighting for [Dataform](https://cloud.google.com/dataform) `.sqlx` files in [Zed](https://zed.dev).
+[![CI](https://github.com/ldhnam/zed-dataform-sqlx/actions/workflows/ci.yml/badge.svg)](https://github.com/ldhnam/zed-dataform-sqlx/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-A small tree-sitter grammar splits each file into its Dataform parts, then Zed highlights each part with the right language:
+[Dataform](https://cloud.google.com/dataform) `.sqlx` support for the [Zed](https://zed.dev) editor.
+
+![Dataform SQLX file highlighted in Zed](docs/screenshot.png)
+
+Mapping `.sqlx` to plain SQL breaks highlighting, because the SQL parser treats every `config { ... }` block and `${ref(...)}` as a syntax error. This extension ships a small tree-sitter grammar that splits a `.sqlx` file into its parts and hands each part to the right language:
 
 | Part | Highlighted as |
-|------|----------------|
-| SQL body, `pre_operations { }`, `post_operations { }`, `input "x" { }` | SQL (via Zed's SQL extension) |
-| `config { ... }` | Object keys natively, values as JavaScript |
-| `js { ... }`, `${ ... }` | JavaScript |
+| --- | --- |
+| SQL body, `pre_operations`, `post_operations`, `incremental_where`, `input "…"` | SQL (Zed's SQL extension) |
+| `config { … }` | Keys natively, values as JavaScript |
+| `js { … }` and `${ … }` | JavaScript |
 
-The SQL parser only sees the SQL, so `config` blocks and `${ref(...)}` no longer break highlighting for the rest of the file.
+## Features
 
-## Install
+- **Syntax highlighting** for SQL, JavaScript and Dataform blocks in one file.
+- **Outline** (`cmd-shift-o`): jump to `config`, its keys, and each block.
+- **Run buttons** on `config`: compile the project or run the current action with the [Dataform CLI](https://cloud.google.com/dataform/docs/use-dataform-cli).
+- **Comment toggling** uses `--` in SQL and `//` inside `config` and `js`.
+- **Auto-indent**, bracket matching, and auto-closing quotes aware of strings and comments.
+- **Vim text objects**: `]]`/`[[` move between blocks, `ac`/`ic` select a block, `af`/`if` select a `${ … }` interpolation.
 
-Requires the **SQL** extension (Zed → Extensions → search "SQL").
+## Installation
 
-1. Clone this repo.
-2. In Zed, run `zed: install dev extension` from the command palette and pick the cloned folder.
-3. Open a `.sqlx` file; the status bar should show **Dataform SQLX**.
+This extension is not in the Zed extension registry yet. To install it from source:
+
+1. Install the **SQL** extension from Zed's Extensions panel (`cmd-shift-x`). The SQL parts of `.sqlx` files are highlighted by it.
+2. Clone this repository.
+3. Run `zed: install dev extension` from the command palette and choose the cloned folder.
+4. Open a `.sqlx` file. The status bar should show **Dataform SQLX**.
 
 The first install takes about a minute while Zed downloads its WebAssembly toolchain and compiles the grammar.
 
-## Layout
+> If `.sqlx` still opens as SQL, remove any `"file_types": { "SQL": ["sqlx"] }` entry from your Zed settings. User `file_types` take priority over extensions.
 
-```
-extension.toml        Zed manifest; pins the grammar commit
-languages/sqlx/       Zed language config and highlight/injection/bracket queries
-grammar/              tree-sitter grammar (grammar.js + external scanner in src/scanner.c)
-```
+## Dataform tasks
 
-## Developing the grammar
+Click the run button next to `config`, or run `task: spawn` from the command palette:
 
-```sh
-cd grammar
-npm install
-npm run generate   # regenerate src/parser.c after editing grammar.js
-npm test           # run test/corpus
-```
+| Task | Command |
+| --- | --- |
+| `dataform compile` | `dataform compile <project>` |
+| `dataform run <file> --dry-run` | Print the SQL for this action without running it |
+| `dataform run <file>` | Run this action |
+| `dataform run <file> --include-deps` | Run this action and its dependencies |
 
-Zed builds the grammar from the commit pinned in `extension.toml`, not from your working tree. After changing anything under `grammar/`, commit it, push, and set `rev` in `extension.toml` to that commit's SHA.
+`<project>` is the nearest folder above the file that contains `workflow_settings.yaml` (or `dataform.json` for older projects). `<file>` is the file name without `.sqlx`, which is the action name unless `config` sets a different `name`. The tasks need the Dataform CLI (`npm i -g @dataform/cli`) and credentials configured for your project.
 
 ## Known limitations
 
-- SQL around a `${...}` interpolation is parsed with the interpolation removed, so `FROM ${ref("t")}` shows a small local parse error after `FROM`. Keywords are still highlighted.
-- Highlighting of the SQL itself is only as good as Zed's SQL grammar, which doesn't support some BigQuery syntax (e.g. `SELECT * EXCEPT(...)`).
+- SQL around an interpolation is parsed with the interpolation removed, so `FROM ${ref("t")}` produces a small local parse error after `FROM`. Keywords are still highlighted.
+- SQL highlighting is only as good as Zed's SQL grammar, which does not support some BigQuery syntax such as `SELECT * EXCEPT(...)`.
+
+## Contributing
+
+Bug reports and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how the grammar and queries fit together and how to test changes.
 
 ## License
 
-MIT
+[MIT](LICENSE)

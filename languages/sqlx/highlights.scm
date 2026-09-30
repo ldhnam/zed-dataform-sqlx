@@ -1,4 +1,11 @@
-["config" "js" "pre_operations" "post_operations" "input"] @keyword
+[
+  "config"
+  "js"
+  "pre_operations"
+  "post_operations"
+  "incremental_where"
+  "input"
+] @keyword
 
 (pair key: (property_identifier) @property)
 (pair key: (string) @property)
@@ -13,6 +20,7 @@
 (js_block ["{" "}"] @punctuation.bracket)
 (pre_operations_block ["{" "}"] @punctuation.bracket)
 (post_operations_block ["{" "}"] @punctuation.bracket)
+(incremental_where_block ["{" "}"] @punctuation.bracket)
 (input_block ["{" "}"] @punctuation.bracket)
 
 [":" ","] @punctuation.delimiter

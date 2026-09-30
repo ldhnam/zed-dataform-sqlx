@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  grammar:
+    name: Grammar and queries
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: grammar
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: grammar/package-lock.json
+
+      - run: npm ci
+
+      - name: Generated parser is up to date
+        run: |
+          npm run generate
+          git diff --exit-code -- src/ || {
+            echo "::error::src/ is stale. Run 'npm run generate' in grammar/ and commit the result."
+            exit 1
+          }
+
+      - name: Corpus tests
+        run: npx tree-sitter test
+
+      - name: Parse examples
+        run: npx tree-sitter parse --quiet --stat ../examples/definitions/*.sqlx
+
+      - name: Zed queries compile against the grammar
+        run: |
+          for q in ../languages/sqlx/*.scm; do
+            echo "checking $q"
+            npx tree-sitter query "$q" ../examples/definitions/*.sqlx > /dev/null
+          done
+
+      - name: extension.toml pins the current grammar
+        working-directory: .
+        run: |
+          rev=$(sed -n 's/^rev = "\(.*\)"$/\1/p' extension.toml)
+          git cat-file -e "$rev^{commit}" || {
+            echo "::error file=extension.toml::rev $rev is not a commit in this repository."
+            exit 1
+          }
+          git diff --exit-code "$rev" HEAD -- grammar/grammar.js grammar/src || {
+            echo "::error file=extension.toml::grammar/ changed after the pinned rev $rev. Commit the grammar, then set rev to that commit."
+            exit 1
+          }
+
+  dataform-corpus:
+    name: Parse official Dataform .sqlx files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: grammar/package-lock.json
+
+      - run: npm ci
+        working-directory: grammar
+
+      - name: Fetch dataform-co/dataform
+        run: |
+          git clone --quiet --depth 1 --filter=blob:none --sparse https://github.com/dataform-co/dataform "$RUNNER_TEMP/dataform"
+          git -C "$RUNNER_TEMP/dataform" sparse-checkout set --no-cone '*.sqlx'
+
+      - name: Parse
+        working-directory: grammar
+        run: find "$RUNNER_TEMP/dataform" -name '*.sqlx' -print0 | xargs -0 npx tree-sitter parse --quiet --stat

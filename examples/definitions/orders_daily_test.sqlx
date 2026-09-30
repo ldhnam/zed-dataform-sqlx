@@ -1,0 +1,12 @@
+config {
+  type: "test",
+  dataset: "orders_daily",
+}
+
+input "orders" {
+  SELECT TIMESTAMP "2024-01-01 10:00:00" AS created_at, "c1" AS customer_id, 10.5 AS amount
+  UNION ALL
+  SELECT TIMESTAMP "2024-01-01 12:00:00", "c1", 4.5
+}
+
+SELECT DATE "2024-01-01" AS order_date, "c1" AS customer_id, 2 AS order_count, 15.0 AS revenue

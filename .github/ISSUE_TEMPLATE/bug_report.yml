@@ -1,0 +1,38 @@
+name: Bug report
+description: Wrong highlighting, parse errors, or a task that doesn't work
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect, and what did you see instead? A screenshot helps for highlighting issues.
+    validations:
+      required: true
+  - type: textarea
+    id: sqlx
+    attributes:
+      label: Minimal .sqlx snippet
+      description: The smallest snippet that shows the problem. Remove anything confidential.
+      render: sql
+    validations:
+      required: true
+  - type: input
+    id: zed-version
+    attributes:
+      label: Zed version
+      description: From `zed: about`.
+      placeholder: "0.200.0"
+    validations:
+      required: true
+  - type: input
+    id: extension-version
+    attributes:
+      label: Extension version or commit
+      placeholder: "0.2.0"
+  - type: textarea
+    id: log
+    attributes:
+      label: Zed log excerpt
+      description: If the extension failed to load, relevant lines from `zed: open log`.
+      render: text
