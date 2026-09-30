@@ -1,0 +1,147 @@
+==================
+Plain SQL
+==================
+
+SELECT 1 AS a
+
+---
+
+(source_file
+  (sql_text))
+
+==================
+Config with nested objects, arrays and comments
+==================
+
+config {
+  type: "table", // trailing comment
+  "quoted-key": 1,
+  bigquery: { partitionBy: "DATE(ts)", clusterBy: ["a", "b",], },
+  /* block comment */
+  tags: [],
+}
+SELECT 1
+
+---
+
+(source_file
+  (config_block
+    (object
+      (pair
+        key: (property_identifier)
+        value: (js_expression))
+      (comment)
+      (pair
+        key: (string)
+        value: (js_expression))
+      (pair
+        key: (property_identifier)
+        value: (object
+          (pair
+            key: (property_identifier)
+            value: (js_expression))
+          (pair
+            key: (property_identifier)
+            value: (array
+              (js_expression)
+              (js_expression)))))
+      (comment)
+      (pair
+        key: (property_identifier)
+        value: (array))))
+  (sql_text))
+
+==================
+Interpolation with nested template literal and braces
+==================
+
+SELECT * FROM ${ref({schema: "s", name: "t"})}
+WHERE ${when(incremental(), `dt > (SELECT MAX(dt) FROM ${self()})`, "TRUE")}
+
+---
+
+(source_file
+  (sql_text)
+  (interpolation
+    (js_body))
+  (sql_text)
+  (interpolation
+    (js_body)))
+
+==================
+JS, pre_operations and post_operations blocks
+==================
+
+js {
+  const cols = ["a", "b"].map(c => `${c}_x`);
+  function f() { return "}"; }
+}
+pre_operations {
+  DECLARE x DEFAULT (SELECT 1);
+  CREATE TEMP FUNCTION f(s STRING) AS (${expr});
+}
+SELECT ${cols.join(", ")}
+post_operations {
+  GRANT `roles/bigquery.dataViewer` ON TABLE ${self()} TO "group:x@y.z";
+}
+
+---
+
+(source_file
+  (js_block
+    (js_body))
+  (pre_operations_block
+    (block_sql_text)
+    (interpolation
+      (js_body))
+    (block_sql_text))
+  (sql_text)
+  (interpolation
+    (js_body))
+  (post_operations_block
+    (block_sql_text)
+    (interpolation
+      (js_body))
+    (block_sql_text)))
+
+==================
+Unit test input block
+==================
+
+config { type: "test", dataset: "t" }
+input "ages" {
+  SELECT 1 AS age
+}
+SELECT age FROM x
+
+---
+
+(source_file
+  (config_block
+    (object
+      (pair
+        key: (property_identifier)
+        value: (js_expression))
+      (pair
+        key: (property_identifier)
+        value: (js_expression))))
+  (input_block
+    (string)
+    (block_sql_text))
+  (sql_text))
+
+==================
+Keyword-like identifiers and lone dollar stay SQL
+==================
+
+SELECT
+input_date,
+js,
+config_value
+FROM t
+WHERE price > $1 AND s = '{}'
+
+---
+
+(source_file
+  (sql_text))

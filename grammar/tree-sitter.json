@@ -1,0 +1,29 @@
+{
+  "grammars": [
+    {
+      "name": "sqlx",
+      "camelcase": "Sqlx",
+      "scope": "source.sqlx",
+      "path": ".",
+      "file-types": [
+        "sqlx"
+      ],
+      "highlights": "../languages/sqlx/highlights.scm",
+      "injection-regex": "^sqlx$",
+      "injections": "../languages/sqlx/injections.scm"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Tree-sitter grammar for Dataform SQLX",
+    "authors": [
+      {
+        "name": "ldhnam"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/ldhnam/zed-dataform-sqlx"
+    }
+  }
+}
