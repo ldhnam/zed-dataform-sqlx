@@ -1,0 +1,12 @@
+id = "dataform-sqlx"
+name = "Dataform SQLX"
+version = "0.1.0"
+schema_version = 1
+authors = ["ldhnam"]
+description = "Dataform .sqlx support: SQL highlighting with JavaScript config blocks and ${} interpolation."
+repository = "https://github.com/ldhnam/zed-dataform-sqlx"
+
+[grammars.sqlx]
+repository = "https://github.com/ldhnam/zed-dataform-sqlx"
+rev = "47d5bfbcafbe55f5a3b8b9df8047dc9dbc4b4d48"
+path = "grammar"
